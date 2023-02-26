@@ -2,33 +2,55 @@
 import Calendar from "@/components/Calendar.vue";
 import { useCalendar } from "@/composables/useCalendar";
 import { VisitService, type Visit } from "@/services/visitService";
-import { onMounted, ref } from "vue";
+import { refNoUnwrap } from "@/utils/reactivityUtils";
+import { onMounted } from "vue";
 
 const visitService = new VisitService();
 
-const visits = ref<Visit[]>([]);
+const visits = refNoUnwrap<Visit[]>([]);
 
 const { events, onEventClick, onEventDrop, onEventDurationChange } =
   useCalendar({
     events: visits,
     startDateExtractor: (item) => item.startTime,
     endDateExtractor: (item) => item.endTime,
-    dateExtractor: (item) => item.date,
     titleExtractor: (item) => item.outletName,
     contentExtractor: (item) => item.notes ?? "",
-    onEventClick: (item) => {
-      console.log(item.outletName);
+    onEventClick: ({ payload }) => {
+      console.log(payload.outletName);
     },
     onEventDrop: async ({ event }) => {
       await new Promise((res) => setTimeout(res, 600));
-      visitService.saveVisit(event);
+      const { id } = event.payload;
+      const { start, end } = event;
+      const visit = visits.value.find((visit) => visit.id === id);
+
+      if (!visit) {
+        return;
+      }
+
+      visit.startTime = start as Date;
+      visit.endTime = end as Date;
+
+      visitService.saveVisit(visit);
       console.log("saved");
 
       await refresh();
     },
     onEventDurationChange: async ({ event }) => {
       await new Promise((res) => setTimeout(res, 600));
-      visitService.saveVisit(event);
+      const { id } = event.payload;
+      const { start, end } = event;
+      const visit = visits.value.find((visit) => visit.id === id);
+
+      if (!visit) {
+        return;
+      }
+
+      visit.startTime = start as Date;
+      visit.endTime = end as Date;
+
+      visitService.saveVisit(visit);
       console.log("saved duration change");
 
       await refresh();
@@ -55,7 +77,7 @@ onMounted(() => {
         :events="events"
         events-on-month-view
         :snap-to-time="15"
-        @on-event-click="onEventClick"
+        @event-click="onEventClick"
         @event-drop="onEventDrop"
         @event-duration-change="onEventDurationChange"
       />

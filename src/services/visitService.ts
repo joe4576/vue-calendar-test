@@ -2,11 +2,8 @@ import { visits } from "@/assets/visitData";
 
 export interface Visit {
   id: string;
-
-  // TODO: use Dates / js-joda conversions
-  startTime: string;
-  endTime: string;
-  date: string;
+  startTime: Date;
+  endTime: Date;
   notes?: string;
   outletName: string;
 }

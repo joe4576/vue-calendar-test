@@ -4,9 +4,8 @@ import { Event as CalEvent } from "vue-cal";
 
 interface CalendarConfiguration<T> {
   events: Ref<T[]>;
-  startDateExtractor: (item: T) => string;
-  endDateExtractor: (item: T) => string;
-  dateExtractor: (item: T) => string;
+  startDateExtractor: (item: T) => Date;
+  endDateExtractor: (item: T) => Date;
   titleExtractor?: (item: T) => string;
   contentExtractor?: (item: T) => string;
   class?: (item: T) => string;
@@ -22,23 +21,23 @@ interface CalendarConfiguration<T> {
   ) => void | Promise<void>;
 }
 
-type DecoratedCalEvent<T> = CalEvent & T;
+type DecoratedCalEvent<T> = CalEvent & {
+  payload: T;
+};
 
 export function useCalendar<T>(configuration: CalendarConfiguration<T>) {
   const events = ref([]) as Ref<DecoratedCalEvent<T>[]>;
 
-  /**
-   * TODO: use proper date formatting
-   */
   const buildCalendarEvent = (event: T): DecoratedCalEvent<T> => {
-    const date = configuration.dateExtractor(event);
     return {
-      ...event,
-      start: `${date} ${configuration.startDateExtractor(event)}`,
-      end: `${date} ${configuration.endDateExtractor(event)}`,
+      start: configuration.startDateExtractor(event),
+      end: configuration.endDateExtractor(event),
       title: configuration.titleExtractor?.(event),
       content: configuration.contentExtractor?.(event),
       class: configuration.class?.(event),
+      payload: {
+        ...event,
+      },
     };
   };
 
