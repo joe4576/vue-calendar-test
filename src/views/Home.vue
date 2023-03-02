@@ -4,12 +4,16 @@ import { useCalendar } from "@/composables/useCalendar";
 import { VisitService, type Visit } from "@/services/visitService";
 import { refNoUnwrap } from "@/utils/reactivityUtils";
 import { onMounted, ref } from "vue";
-import AddNewVisitDialog from "@/components/dialogs/AddNewVisitDialog.vue";
+import EditVisitDialog from "@/components/dialogs/EditVisitDialog.vue";
+import VisitSummaryMenu from "@/components/VisitSummaryMenu.vue";
 
 const visitService = new VisitService();
 
 const visits = refNoUnwrap<Visit[]>([]);
 const showAddVisitDialog = ref(false);
+const summaryMenuActivator = ref();
+const selectedVisitId = ref<string | null>(null);
+const visitToEdit = ref<Visit>();
 
 const { events, onEventClick, onEventDrop, onEventDurationChange } =
   useCalendar({
@@ -18,8 +22,10 @@ const { events, onEventClick, onEventDrop, onEventDurationChange } =
     endDateExtractor: (item) => item.endTime,
     titleExtractor: (item) => item.outletName,
     contentExtractor: (item) => item.notes ?? "",
-    onEventClick: ({ payload }) => {
-      console.log(payload.outletName);
+    onEventClick: ({ payload }, nativeEvent) => {
+      selectedVisitId.value = payload.id;
+      summaryMenuActivator.value = nativeEvent.target;
+      nativeEvent.preventDefault();
     },
     onEventDrop: async ({ event }) => {
       await new Promise((res) => setTimeout(res, 600));
@@ -69,6 +75,11 @@ const addNewVisit = (visit: Visit) => {
   visitService.createVisit(visit);
   refresh();
 };
+
+const updateVisit = (visit: Visit) => {
+  visitService.saveVisit(visit);
+  refresh();
+};
 </script>
 
 <template>
@@ -94,9 +105,19 @@ const addNewVisit = (visit: Visit) => {
       />
     </v-col>
   </v-row>
-  <add-new-visit-dialog
+  <edit-visit-dialog
     v-if="showAddVisitDialog"
     v-model="showAddVisitDialog"
+    :visit="visitToEdit"
     @submit="addNewVisit"
+    @update="updateVisit"
+  />
+  <visit-summary-menu
+    :visit="visits.find((visit) => visit.id === selectedVisitId)"
+    :activator="summaryMenuActivator"
+    @edit="
+      visitToEdit = visits.find((visit) => visit.id === $event);
+      showAddVisitDialog = true;
+    "
   />
 </template>
