@@ -21,8 +21,23 @@ export class VisitService {
     };
   }
 
+  private validateVisit(visit: Visit): void {
+    if (visit.startTime.getDay() !== visit.endTime.getDay()) {
+      throw new Error("Visits have to be on the same day");
+    }
+
+    if (visit.startTime.getMonth() !== visit.endTime.getMonth()) {
+      throw new Error("Visits have to be in the same month");
+    }
+
+    if (visit.startTime.getFullYear() !== visit.endTime.getFullYear()) {
+      throw new Error("Visits have to be in the same year");
+    }
+  }
+
   getAllVisits(): Visit[] {
-    return this._db.entries;
+    // return a shallow copy to ensure vue knows to trigger reactive updates
+    return [...this._db.entries];
   }
 
   getVisitById(id: string): Visit | undefined {
@@ -36,6 +51,8 @@ export class VisitService {
       throw new Error(`Visit with id ${visit.id} not found`);
     }
 
+    this.validateVisit(visit);
+
     this._db.entries[visitIndex] = visit;
   }
 
@@ -47,5 +64,17 @@ export class VisitService {
     }
 
     this._db.entries.splice(visitIndex);
+  }
+
+  createVisit(visit: Visit): void {
+    const visitIndex = this._db.entries.findIndex(({ id }) => visit.id === id);
+
+    if (visitIndex !== -1) {
+      throw new Error(`Visit with id ${visit.id} already exists`);
+    }
+
+    this.validateVisit(visit);
+
+    this._db.entries.push(visit);
   }
 }

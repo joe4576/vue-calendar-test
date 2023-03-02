@@ -1,5 +1,6 @@
 import { EventDrop, EventDurationChange } from "@/components/Calendar.vue";
-import { Ref, ref, watch } from "vue";
+import { refNoUnwrap } from "@/utils/reactivityUtils";
+import { Ref, watch } from "vue";
 import { Event as CalEvent } from "vue-cal";
 
 interface CalendarConfiguration<T> {
@@ -26,7 +27,7 @@ type DecoratedCalEvent<T> = CalEvent & {
 };
 
 export function useCalendar<T>(configuration: CalendarConfiguration<T>) {
-  const events = ref([]) as Ref<DecoratedCalEvent<T>[]>;
+  const events = refNoUnwrap<DecoratedCalEvent<T>[]>([]);
 
   const buildCalendarEvent = (event: T): DecoratedCalEvent<T> => {
     return {

@@ -3,11 +3,13 @@ import Calendar from "@/components/Calendar.vue";
 import { useCalendar } from "@/composables/useCalendar";
 import { VisitService, type Visit } from "@/services/visitService";
 import { refNoUnwrap } from "@/utils/reactivityUtils";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
+import AddNewVisitDialog from "@/components/dialogs/AddNewVisitDialog.vue";
 
 const visitService = new VisitService();
 
 const visits = refNoUnwrap<Visit[]>([]);
+const showAddVisitDialog = ref(false);
 
 const { events, onEventClick, onEventDrop, onEventDurationChange } =
   useCalendar({
@@ -35,7 +37,7 @@ const { events, onEventClick, onEventDrop, onEventDurationChange } =
       visitService.saveVisit(visit);
       console.log("saved");
 
-      await refresh();
+      refresh();
     },
     onEventDurationChange: async ({ event }) => {
       await new Promise((res) => setTimeout(res, 600));
@@ -53,25 +55,34 @@ const { events, onEventClick, onEventDrop, onEventDurationChange } =
       visitService.saveVisit(visit);
       console.log("saved duration change");
 
-      await refresh();
+      refresh();
     },
   });
 
-const refresh = async () => {
+const refresh = () => {
   visits.value = visitService.getAllVisits();
-  console.log("refreshed");
 };
 
-onMounted(() => {
-  visits.value = visitService.getAllVisits();
-});
+onMounted(refresh);
+
+const addNewVisit = (visit: Visit) => {
+  visitService.createVisit(visit);
+  refresh();
+};
 </script>
 
 <template>
-  <v-row>
-    <v-col cols="12" sm="6">
+  <v-row class="justify-space-between">
+    <v-col cols="auto">
       <h1>Calendar Test</h1>
     </v-col>
+    <v-col cols="auto">
+      <v-btn color="primary" @click="showAddVisitDialog = true">
+        Add new event
+      </v-btn>
+    </v-col>
+  </v-row>
+  <v-row>
     <v-col cols="12">
       <calendar
         :events="events"
@@ -83,4 +94,9 @@ onMounted(() => {
       />
     </v-col>
   </v-row>
+  <add-new-visit-dialog
+    v-if="showAddVisitDialog"
+    v-model="showAddVisitDialog"
+    @submit="addNewVisit"
+  />
 </template>
