@@ -77,33 +77,27 @@ const bubbleEventDurationChange = <T extends CalEvent>(
 
 <!-- These styles need to be global -->
 <style>
-.vuecal__special-hours {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px;
+.vuecal__menu,
+.vuecal__cell-events-count {
+  background-color: #002e5d;
+  color: white;
 }
 
-.vuecal__special-hours em {
-  font-size: 0.9em;
-  color: #999;
+.vuecal__title-bar {
+  background-color: #5596e6;
+  color: white;
 }
 
-.closed {
-  background: #fff7f0
-    repeating-linear-gradient(
-      -45deg,
-      rgba(255, 162, 87, 0.25),
-      rgba(255, 162, 87, 0.25) 5px,
-      rgba(255, 255, 255, 0) 5px,
-      rgba(255, 255, 255, 0) 15px
-    );
-  color: #f6984c;
+.vuecal__cell--today,
+.vuecal__cell--current {
+  background-color: rgba(85, 150, 230, 0.1);
 }
 
-.vuecal__event.leisure {
-  background-color: rgba(253, 156, 66, 0.9);
-  border: 1px solid rgb(233, 136, 46);
-  color: #fff;
+.vuecal:not(.vuecal--day-view) .vuecal__cell--selected {
+  background-color: rgba(85, 150, 230, 0.1);
+}
+
+.vuecal__cell--selected:before {
+  background-color: rgba(85, 150, 230, 0.1);
 }
 </style>
