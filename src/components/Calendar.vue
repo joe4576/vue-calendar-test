@@ -100,4 +100,8 @@ const bubbleEventDurationChange = <T extends CalEvent>(
 .vuecal__cell--selected:before {
   background-color: rgba(85, 150, 230, 0.1);
 }
+
+.vuecal__event:hover {
+  cursor: pointer;
+}
 </style>
