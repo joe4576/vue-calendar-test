@@ -3,7 +3,7 @@ import Calendar from "@/components/Calendar.vue";
 import { useCalendar } from "@/composables/useCalendar";
 import { VisitService, type Visit } from "@/services/visitService";
 import { refNoUnwrap } from "@/utils/reactivityUtils";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import EditVisitDialog from "@/components/dialogs/EditVisitDialog.vue";
 import VisitSummaryMenu from "@/components/VisitSummaryMenu.vue";
 
@@ -80,6 +80,12 @@ const updateVisit = (visit: Visit) => {
   visitService.saveVisit(visit);
   refresh();
 };
+
+watch(showAddVisitDialog, (val) => {
+  if (!val) {
+    visitToEdit.value = undefined;
+  }
+});
 </script>
 
 <template>
