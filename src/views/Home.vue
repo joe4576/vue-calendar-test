@@ -87,7 +87,7 @@ const updateVisit = (visit: Visit) => {
     <v-col cols="auto">
       <h1>Calendar Test</h1>
     </v-col>
-    <v-col cols="auto">
+    <v-col cols="auto" class="my-auto">
       <v-btn color="primary" @click="showAddVisitDialog = true">
         Add new event
       </v-btn>
